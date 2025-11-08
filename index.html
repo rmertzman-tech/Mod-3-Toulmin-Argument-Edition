@@ -873,7 +873,7 @@
                 setSessionData(session);
                 setHasStarted(true);
                 
-                const sections = ['intro', 'os1os2', 'notation', 'exemplars', 'comparison', 'modeling', 'synthesis'];
+                const sections = ['intro', 'os1os2', 'notation', 'exemplars', 'comparison', 'modeling', 'argumentAnalysis', 'synthesis'];
                 const initialProgress = {};
                 sections.forEach(section => {
                     initialProgress[section] = {
@@ -945,7 +945,8 @@
                 { id: 'notation', label: 'FAIM-QIRF Notation', icon: '📐' },
                 { id: 'exemplars', label: 'Philosopher Exemplars', icon: '🌍' },
                 { id: 'comparison', label: 'Comparative Analysis', icon: '⚖️' },
-                { id: 'modeling', label: 'Student Modeling', icon: '✏️' },
+                { id: 'modeling', label: 'Student Modeling', icon: '✏️' }, 
+                { id: 'argumentAnalysis', label: 'Argument Analysis', icon: '🔬' }, 
                 { id: 'synthesis', label: 'Synthesis & Completion', icon: '🎓' }
             ];
 
@@ -1021,7 +1022,7 @@
                                     studentModels={studentModels}
                                     setStudentModels={setStudentModels}
                                     onComplete={() => completeSection('modeling')}
-                                    onNext={() => navigateToSection('synthesis')}
+                                    onNext={() => navigateToSection('argumentAnalysis')}
                                 />
                             )}
                             {currentSection === 'synthesis' && (
@@ -2162,6 +2163,13 @@
             );
         }
 
+        {currentSection === 'argumentAnalysis' && (
+                                <ArgumentAnalysisSection 
+                                    philosophers={PHILOSOPHERS}
+                                    onComplete={() => completeSection('argumentAnalysis')}
+                                    onNext={() => navigateToSection('synthesis')}
+                                />
+                            )}
         function SynthesisSection({ studentInfo, sessionData, sectionProgress, studentModels, onComplete }) {
             const [reflections, setReflections] = useState({ patterns: '', osInsight: '', application: '' });
             const [showCert, setShowCert] = useState(false);
@@ -2280,6 +2288,165 @@ ${reflections.application}`;
                             <p className="text-sm">Complete all three reflections (100+ words each) to generate certificate.</p>
                         </div>
                     )}
+                </div>
+            );
+        }
+        // PHASE 4.2: NEW ArgumentAnalysisSection Component
+        // Copy this ENTIRE function and paste before "// Render" at the end of your file
+        
+        function ArgumentAnalysisSection({ philosophers, onComplete, onNext }) {
+            const [selectedPhil, setSelectedPhil] = useState(null);
+            const philosopherList = Object.keys(philosophers);
+
+            if (selectedPhil) {
+                const phil = philosophers[selectedPhil];
+                const arg = phil.toulminArguments[0];
+
+                return (
+                    <div className="bg-white rounded-lg shadow-lg p-8">
+                        <button
+                            onClick={() => setSelectedPhil(null)}
+                            className="mb-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg"
+                        >
+                            ← Back to All
+                        </button>
+
+                        <div className="flex items-center space-x-4 mb-6">
+                            <div className="text-6xl">{phil.image}</div>
+                            <div>
+                                <h2 className="text-3xl font-bold text-gray-900">{phil.name}</h2>
+                                <p className="text-lg text-gray-600">Toulmin Argument Analysis</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-6">
+                            {/* Claim */}
+                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-400 rounded-lg p-6">
+                                <h3 className="text-xl font-bold text-blue-900 mb-2">📍 CLAIM</h3>
+                                <p className="text-gray-800 font-semibold">{arg.claim}</p>
+                            </div>
+
+                            {/* Grounds */}
+                            <div className="bg-green-50 border-2 border-green-300 rounded-lg p-6">
+                                <h3 className="text-xl font-bold text-green-900 mb-3">🔍 GROUNDS (Evidence)</h3>
+                                <ul className="space-y-2">
+                                    {arg.grounds.map((ground, i) => (
+                                        <li key={i} className="text-gray-700">• {ground}</li>
+                                    ))}
+                                </ul>
+                                <div className="mt-4 bg-white p-3 rounded border-l-4 border-green-500">
+                                    <p className="text-sm text-gray-600"><strong>From Model:</strong> {arg.connectionToModel.groundsFrom}</p>
+                                </div>
+                            </div>
+
+                            {/* Warrant */}
+                            <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-6">
+                                <h3 className="text-xl font-bold text-purple-900 mb-3">🔗 WARRANT (Reasoning)</h3>
+                                <p className="text-gray-800 mb-2">{arg.warrant}</p>
+                                <p className="text-sm text-purple-700 font-semibold">Type: {arg.warrantType}</p>
+                                <div className="mt-4 bg-white p-3 rounded border-l-4 border-purple-500">
+                                    <p className="text-sm text-gray-600"><strong>From Model:</strong> {arg.connectionToModel.warrantFrom}</p>
+                                </div>
+                            </div>
+
+                            {/* Backing */}
+                            <div className="bg-indigo-50 border-2 border-indigo-300 rounded-lg p-6">
+                                <h3 className="text-xl font-bold text-indigo-900 mb-3">🏛️ BACKING (Support for Warrant)</h3>
+                                <ul className="space-y-2">
+                                    {arg.backing.map((back, i) => (
+                                        <li key={i} className="text-gray-700">• {back}</li>
+                                    ))}
+                                </ul>
+                                <div className="mt-4 bg-white p-3 rounded border-l-4 border-indigo-500">
+                                    <p className="text-sm text-gray-600"><strong>From Model:</strong> {arg.connectionToModel.backingFrom}</p>
+                                </div>
+                            </div>
+
+                            {/* Qualifier */}
+                            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-6">
+                                <h3 className="text-xl font-bold text-yellow-900 mb-3">⚖️ QUALIFIER (Confidence Level)</h3>
+                                <p className="text-gray-800 mb-3">{arg.qualifier}</p>
+                                <div className="flex items-center space-x-4">
+                                    <div className="flex-1 bg-gray-200 rounded-full h-4">
+                                        <div 
+                                            className="bg-yellow-500 h-full rounded-full transition-all"
+                                            style={{ width: `${arg.qualifierStrength * 100}%` }}
+                                        ></div>
+                                    </div>
+                                    <span className="font-bold text-yellow-900">{(arg.qualifierStrength * 100).toFixed(0)}%</span>
+                                </div>
+                            </div>
+
+                            {/* Rebuttals */}
+                            <div className="bg-red-50 border-2 border-red-300 rounded-lg p-6">
+                                <h3 className="text-xl font-bold text-red-900 mb-3">🚫 REBUTTALS (Counterarguments)</h3>
+                                <ul className="space-y-2">
+                                    {arg.rebuttals.map((rebuttal, i) => (
+                                        <li key={i} className="text-gray-700">• {rebuttal}</li>
+                                    ))}
+                                </ul>
+                                <div className="mt-4 bg-white p-3 rounded border-l-4 border-red-500">
+                                    <p className="text-sm text-gray-600"><strong>From Model:</strong> {arg.connectionToModel.rebuttalsFrom}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => setSelectedPhil(null)}
+                            className="mt-6 w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700"
+                        >
+                            View Another Philosopher
+                        </button>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="bg-white rounded-lg shadow-lg p-8">
+                    <h2 className="text-3xl font-bold text-gray-900 mb-4">🔬 Argument Analysis</h2>
+                    <p className="text-lg text-gray-700 mb-6">
+                        Explore how each philosopher's arguments connect to their FAIM-QIRF model using Toulmin's argumentation structure.
+                    </p>
+
+                    <div className="bg-blue-50 border-l-4 border-blue-500 p-6 mb-8">
+                        <h3 className="font-bold text-blue-900 mb-2">Toulmin Model Components:</h3>
+                        <ul className="space-y-1 text-sm text-gray-700">
+                            <li><strong>Claim:</strong> The conclusion being argued for</li>
+                            <li><strong>Grounds:</strong> Evidence supporting the claim</li>
+                            <li><strong>Warrant:</strong> The reasoning linking grounds to claim</li>
+                            <li><strong>Backing:</strong> Support for the warrant itself</li>
+                            <li><strong>Qualifier:</strong> Degree of confidence in the claim</li>
+                            <li><strong>Rebuttals:</strong> Conditions that would undermine the argument</li>
+                        </ul>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        {philosopherList.map(philKey => {
+                            const phil = philosophers[philKey];
+                            return (
+                                <div key={philKey} className="border-2 border-gray-300 rounded-lg p-6 hover:border-purple-400 transition-all">
+                                    <div className="text-center mb-4">
+                                        <div className="text-5xl mb-3">{phil.image}</div>
+                                        <h3 className="text-xl font-bold">{phil.name}</h3>
+                                        <p className="text-sm text-gray-600">{phil.era}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setSelectedPhil(philKey)}
+                                        className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700"
+                                    >
+                                        View Argument
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    <button
+                        onClick={() => { onComplete(); onNext(); }}
+                        className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700"
+                    >
+                        Continue to Synthesis →
+                    </button>
                 </div>
             );
         }
