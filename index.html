@@ -1025,6 +1025,12 @@
                                     onNext={() => navigateToSection('argumentAnalysis')}
                                 />
                             )}
+                           
+                        {currentSection === 'argumentAnalysis' && ( 
+                        <ArgumentAnalysisSection 
+                            philosophers={PHILOSOPHERS} 
+                            onComplete={() => completeSection('argumentAnalysis')} onNext={() => navigateToSection('synthesis')} /> )} 
+                            
                             {currentSection === 'synthesis' && (
                                 <SynthesisSection 
                                     studentInfo={studentInfo}
@@ -2163,13 +2169,6 @@
             );
         }
 
-        {currentSection === 'argumentAnalysis' && (
-                                <ArgumentAnalysisSection 
-                                    philosophers={PHILOSOPHERS}
-                                    onComplete={() => completeSection('argumentAnalysis')}
-                                    onNext={() => navigateToSection('synthesis')}
-                                />
-                            )}
         function SynthesisSection({ studentInfo, sessionData, sectionProgress, studentModels, onComplete }) {
             const [reflections, setReflections] = useState({ patterns: '', osInsight: '', application: '' });
             const [showCert, setShowCert] = useState(false);
